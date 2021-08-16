@@ -1,0 +1,179 @@
+package servsocket;
+
+import java.net.*;
+import java.io.*;
+import java.util.*;
+
+/**
+ * <p>Title: </p>
+ *
+ * <p>Description: </p>
+ *
+ * <p>Copyright: Copyright (c) 2005</p>
+ *
+ * <p>Company: </p>
+ *
+ * @author not attributable
+ * @version 1.0
+ */
+public class webserver
+{
+    public webserver()
+    {
+    }
+
+    public static void main(String[] Args)
+    {
+
+        try
+        {
+            ServerSocket ss = new ServerSocket(8080);
+            //   ss.accept(); //creates the socket..does not open it
+            Socket sock = ss.accept();
+            System.out.println("I got a connection");
+            PrintWriter out = new PrintWriter(
+                    sock.getOutputStream(), true);
+            BufferedReader in = new BufferedReader( //created out
+                    new InputStreamReader(
+                            sock.getInputStream()));
+
+            String inputLine, outputLine;
+            inputLine = in.readLine();
+            System.out.println("Client sent: " + inputLine);
+            StringTokenizer st = new StringTokenizer(inputLine);
+            //I need a method ,domain and a HTTP version.
+            String method = null;
+            String domain = null;
+            String docRoot = "C:\\Inetpub\\wwwroot";
+            String extension = "*.html";  
+            int ch;
+
+            if (st.hasMoreTokens())
+            {
+                method = st.nextToken();
+                System.out.println("got an http request using " + method);
+
+            }
+            //     st.nextElement();
+            if (st.hasMoreTokens())
+            {
+                domain = st.nextToken();
+                System.out.println("Got a domain request using " + domain);
+            }
+
+            // System.out.println(inputLine);
+            //inputLine.startsWith(String prefix)
+            if (method.equals("HEAD") || method.equals("GET"))
+            {
+                System.out.println("I got a  HEAD or GET request");
+                //  FileReader input = new FileReader(docRoot + domain)
+                /*
+                 if (){}
+                 */
+                File f = new File(docRoot + domain);
+
+                if (f.isDirectory())
+                {
+                    System.out.println("Checking for directory");
+                    f = new File(docRoot + domain + extension);
+                }
+
+                // f.length(); //output this
+                if (!f.exists())
+                {
+                    System.out.println("whoops");
+                    out.println("Whoops: 404 Not Found ");
+
+                }
+
+                else if (!f.canRead())
+                {
+                    System.out.println("403 forbidden");
+                    out.println("403 forbidden");
+
+                }
+                else
+                {
+                    out.println("Here's the file you asked for:" + domain);
+                    System.out.println("HTTP/1.1 200 ok ");
+                    out.println("HTTP/1.1 200 ok ");
+                    out.println("Server: Java/1.5.0_02 ");
+                    System.out.print("Content length: " + f.length());
+                    out.println("Content length: " + f.length());
+                    out.println("Connection: close ");
+                    out.println("Content-type: text/html");
+                    if(extension.equals( "*.html") )
+                    {
+                        extension = "*.html";
+                    }
+                    else if(extension.equals(" .jpg"))
+                    {
+                        extension = " .jpg";
+                        out.println(domain);
+                    }
+                    else if(extension.equals("*.gif"))
+                    {
+                        extension = "*.gif";
+                    }
+                    else if(extension.equals("*.png"))
+                    {
+                        extension = "*.gif";
+                    }
+                    else if(extension.equals("*.css"))
+                    {
+                        extension = "*.css";
+                    }
+                    else if(extension.equals("*.js"))
+                    {
+                        extension = "*.js";
+                    }
+                    
+
+
+                    FileReader input = new FileReader(f);
+
+
+                    //then grab the rest of the line and
+
+                    if (method.endsWith("GET"))
+
+                    {
+                        while (true)
+                        {
+
+                            ch = input.read();
+                            if (ch == -1)
+                            {
+                                break;
+                            }
+                            //  System.out.println("I want to know");
+                            out.print((char) ch);
+                            ch++;
+                        }
+                        out.flush();
+
+                    }
+                    input.close();
+
+                } out.flush();
+            }
+            else
+            {
+                System.out.print("Incorrect request.");
+            }
+            in.close();
+            out.close();
+            sock.close();
+        }
+
+        catch (IOException e)
+        {
+            e.printStackTrace();
+            System.exit( -1);
+
+        }
+
+    }
+
+}
+
